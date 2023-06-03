@@ -1,5 +1,5 @@
 from functools import lru_cache
-from students.schema import Mark
+from server.schema import Mark
 
 students = {0: {"first_name": "John", "last_name": "Doe"}}
 

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 
-from students.schema import Student, Mark
-from students.storage import students, get_marks_storage
+from server.schema import Student, Mark
+from server.storage import students, get_marks_storage
 
 router = APIRouter()
 
@@ -22,17 +22,17 @@ async def root():
     return {"message": "Students API"}
 
 
+@router.get("/all")
+async def get_all_students():
+    return {"students": students}
+
+
 @router.get("/{id_}", response_model=Student)
 async def get_student(id_: int):
     if id_ not in students:
         raise HTTPException(status_code=404, detail="Student not found")
 
     return students[id_]
-
-
-@router.get("/all")
-async def get_all_students():
-    return {students}
 
 
 @router.post("/")

@@ -1,4 +1,4 @@
-import {  useState } from "react"
+import { useEffect, useState } from "react"
 import CreateStudent from "./CreateStudent"
 import UpdateStudent from "./UpdateStudent"
 import AddMarks from "./AddMarks"
@@ -12,7 +12,7 @@ export default function Students() {
     const getStudents = () => {
         fetch(`http://127.0.0.1:8000/students/all`)
             .then(res => res.json())
-            .then(data => setStudents(data))
+            .then(data => setStudents(data.students))
             .then(setStudentLoaded(true))
             .then(console.log(students))
     }
@@ -23,18 +23,17 @@ export default function Students() {
             <UpdateStudent />
             <DeleteStudent />
             <AddMarks />
-            <GetMarks />
-            <button onClick={getStudents}>Get student</button>
+            <button onClick={getStudents}>Get students</button>
             <div>
                 <ul>
-                    {studentLoaded ? students.map((student) => {
-                        <li>
-                            <p>{student.first_name}</p>
-                            <p>{student.last_name}</p>
+                    {Object.keys(students).map((key, index) => (
+                        <li key={index}>
+                            <p>{students[key].first_name} {students[key].last_name}</p>
+                            {GetMarks(index).map((mark) => <p>{mark}</p>)}
                         </li>
-                    }): <p>Loading...</p>}
+                    ))}
                 </ul>
-                
+
             </div>
         </div>
     )
