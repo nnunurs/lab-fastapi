@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException
+import json
 
 from server.schema import Student, Mark
-from server.storage import students, get_marks_storage
+from server.storage import *
 
 router = APIRouter()
 
@@ -24,7 +25,20 @@ async def root():
 
 @router.get("/all")
 async def get_all_students():
-    return {"students": students}
+    for id_, student in students.items():
+        print(id_, student)
+
+    return {
+        "students": {
+            id_: {
+                "first_name": student["first_name"],
+                "last_name": student["last_name"],
+                "marks": get_marks_storage()[id_] if id_ in get_marks_storage() else [],
+            }
+            for id_, student in students.items()
+        },
+        "marks": marks,
+    }
 
 
 @router.get("/{id_}", response_model=Student)
@@ -39,17 +53,21 @@ async def get_student(id_: int):
 async def create_student(student: Student):
     validate_student(student)
 
-    id_ = len(students)
-    students[id_] = student
+    for i in range(len(students) + 1):
+        if i not in students:
+            id_ = i
+            break
+
+    students[id_] = {"first_name": student.first_name, "last_name": student.last_name}
     return {id_: student}
 
 
-@router.put("/{id_}", response_model=Student)
+@router.put("/{id_}")
 async def update_student(id_: int, student: Student):
     validate_student(student, id_, True)
 
-    students[id_] = student
-    return students[id_]
+    students[id_] = {"first_name": student.first_name, "last_name": student.last_name}
+    return {id_: student}
 
 
 @router.delete("/{id_}")
@@ -58,23 +76,23 @@ async def delete_student(id_: int):
         raise HTTPException(status_code=404, detail="Student not found")
 
     del students[id_]
+    if id_ in marks:
+        del marks[id_]
     return {"message": "Student deleted"}
 
 
 @router.post("/{id_}/marks/{mark:float}")
 async def add_mark(id_: int, mark: Mark):
-    temp_mark = get_marks_storage()
-
     print(students)
     if id_ not in students:
         raise HTTPException(status_code=404, detail="Student not found")
 
-    if id_ not in temp_mark:
-        temp_mark[id_] = [mark]
+    if id_ not in get_marks_storage():
+        marks[id_] = [mark]
     else:
-        temp_mark[id_].append(mark)
+        marks[id_].append(mark)
 
-    return {"message": "Mark added"}
+    return {id_: marks[id_]}
 
 
 @router.get("/{id_}/marks")

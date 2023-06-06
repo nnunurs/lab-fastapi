@@ -1,35 +1,73 @@
-import {useState} from 'react'
+import { useState } from "react";
+import {
+  Button,
+  Modal,
+  Input,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  IconButton,
+  useToast,
+} from "@chakra-ui/react";
+import { CloseIcon } from "@chakra-ui/icons";
+import { createStudent } from "./ApiCalls";
 
-export default function CreateStudent() {
-    const [student, setStudent] = useState({"first_name": "", "last_name": ""})
+export default function CreateStudent({ update }) {
+  const [student, setStudent] = useState({ first_name: "", last_name: "" });
+  const [isOpen, setIsOpen] = useState(false);
 
-    const createStudent = () => {
-        fetch("http://127.0.0.1:8000/students/", {
-            method: "POST",
-            // mode: "no-cors",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(student),
-        }).then((response) => {
-            console.log(response)
-        }).catch((error) => {console.log(error)})
-    }
+  const toast = useToast();
 
-    return (
-        <div>
-            <form>
-                <label htmlFor="first_name">First name</label>
-                <input value={student.first_name} onChange={(e) => setStudent({"first_name": e.target.value, "last_name": student.last_name})} type="text" name="first_name"/>
-                <label htmlFor="last_name">Last name</label>
-                <input value={student.last_name} onChange={(e) => setStudent({"first_name": student.first_name, "last_name": e.target.value})} type="text" name="last_name"/>
-                <button type="submit" onClick={
-                    (e) => {
-                        e.preventDefault()
-                        createStudent()
-                        console.log(student)
-                }}>Create student</button>
-            </form>
-        </div>
-    )
+  return (
+    <div>
+      <Button onClick={() => setIsOpen(true)} colorScheme="teal">
+        New student
+      </Button>
+      <Modal isOpen={isOpen}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Create new student</ModalHeader>
+          <ModalBody>
+            <Input
+              value={student.first_name}
+              onChange={(e) =>
+                setStudent({ ...student, first_name: e.target.value })
+              }
+              placeholder="First name"
+              mb={5}
+            />
+            <Input
+              value={student.last_name}
+              onChange={(e) =>
+                setStudent({ ...student, last_name: e.target.value })
+              }
+              placeholder="Last name"
+            />
+          </ModalBody>
+          <ModalFooter>
+            <IconButton
+              icon={<CloseIcon />}
+              onClick={() => {
+                setIsOpen(false);
+                setStudent({ first_name: "", last_name: "" });
+              }}
+              mr={5}
+            ></IconButton>
+            <Button
+              onClick={() => {
+                createStudent(student, update, toast);
+                setStudent({ first_name: "", last_name: "" });
+                setIsOpen(false);
+              }}
+              colorScheme="teal"
+            >
+              Create student
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </div>
+  );
 }

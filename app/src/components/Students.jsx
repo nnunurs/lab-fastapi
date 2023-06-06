@@ -1,40 +1,75 @@
-import { useEffect, useState } from "react"
-import CreateStudent from "./CreateStudent"
-import UpdateStudent from "./UpdateStudent"
-import AddMarks from "./AddMarks"
-import GetMarks from "./GetMarks"
-import DeleteStudent from "./DeleteStudent"
+import { useEffect, useState } from "react";
+import CreateStudent from "./CreateStudent";
+import StudentRow from "./StudentRow";
+import { getStudents } from "./ApiCalls";
+
+import {
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  TableContainer,
+  IconButton,
+  Text,
+  ButtonGroup,
+  useToast,
+} from "@chakra-ui/react";
+import { RepeatIcon } from "@chakra-ui/icons";
 
 export default function Students() {
-    const [studentLoaded, setStudentLoaded] = useState(false)
-    const [students, setStudents] = useState({})
+  const [students, setStudents] = useState({});
+  const [marks, setMarks] = useState({});
 
-    const getStudents = () => {
-        fetch(`http://127.0.0.1:8000/students/all`)
-            .then(res => res.json())
-            .then(data => setStudents(data.students))
-            .then(setStudentLoaded(true))
-            .then(console.log(students))
-    }
+  const toast = useToast();
 
-    return (
-        <div className="card">
-            <CreateStudent />
-            <UpdateStudent />
-            <DeleteStudent />
-            <AddMarks />
-            <button onClick={getStudents}>Get students</button>
-            <div>
-                <ul>
-                    {Object.keys(students).map((key, index) => (
-                        <li key={index}>
-                            <p>{students[key].first_name} {students[key].last_name}</p>
-                            {GetMarks(index).map((mark) => <p>{mark}</p>)}
-                        </li>
-                    ))}
-                </ul>
+  const updateData = () => {
+    getStudents(toast).then((data) => {
+      console.log(data);
+      setStudents({ ...data.students });
+      setMarks({ ...data.marks });
+    });
+  };
 
-            </div>
-        </div>
-    )
+  useEffect(() => {
+    updateData();
+  }, []);
+
+  return (
+    <div>
+      <Text fontSize="2xl" m={4}>
+        Students
+      </Text>
+      <TableContainer variant="simple">
+        <Table>
+          <Thead>
+            <Tr>
+              <Th>ID</Th>
+              <Th>First name</Th>
+              <Th>Last name</Th>
+              <Th>Marks</Th>
+              <Th>Edit</Th>
+              <Th>
+                <ButtonGroup display="flex" justifyContent="flex-end">
+                  <CreateStudent update={updateData} />
+                  <IconButton icon={<RepeatIcon />} onClick={updateData} />
+                </ButtonGroup>
+              </Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {Object.keys(students).map((key, index) => (
+              <StudentRow
+                key={key}
+                studentObj={students[key]}
+                allMarks={marks}
+                id={key}
+                update={updateData}
+              />
+            ))}
+          </Tbody>
+        </Table>
+      </TableContainer>
+    </div>
+  );
 }
