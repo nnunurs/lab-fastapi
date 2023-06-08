@@ -81,7 +81,7 @@ async def delete_student(id_: int):
     return {"message": "Student deleted"}
 
 
-@router.post("/{id_}/marks/{mark:float}")
+@router.post("/{id_}/marks/{mark: float}")
 async def add_mark(id_: int, mark: Mark):
     print(students)
     if id_ not in students:
@@ -95,6 +95,17 @@ async def add_mark(id_: int, mark: Mark):
     return {id_: marks[id_]}
 
 
+@router.get("/{id_}/marks")
+async def get_marks(id_: int):
+    if id_ not in students:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    if id_ not in get_marks_storage():
+        raise HTTPException(status_code=404, detail="Student has no marks")
+
+    return get_marks_storage()[id_]
+
+
 @router.post("/{id_}/marks/update")
 async def update_marks(id_: int, new_marks: NewMarks):
     if id_ not in students:
@@ -105,14 +116,3 @@ async def update_marks(id_: int, new_marks: NewMarks):
 
     marks[id_] = new_marks.marks
     return {id_: marks[id_]}
-
-
-@router.get("/{id_}/marks")
-async def get_marks(id_: int):
-    if id_ not in students:
-        raise HTTPException(status_code=404, detail="Student not found")
-
-    if id_ not in get_marks_storage():
-        raise HTTPException(status_code=404, detail="Student has no marks")
-
-    return get_marks_storage()[id_]

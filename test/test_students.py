@@ -94,6 +94,39 @@ def test_get_marks_not_found():
     assert response.json() == {"detail": "Student not found"}
 
 
+def test_get_all_students():
+    response = client.get("/students/all")
+    assert response.status_code == 200
+    assert response.json() == {
+        "students": {
+            "0": {"first_name": "John", "last_name": "Doe", "marks": [5.0]},
+            "1": {"first_name": "Jane", "last_name": "Doe", "marks": [5.0]},
+        },
+        "marks": {0: [5.0], 1: [5.0]},
+    }
+
+
+def test_get_all_students_not_found():
+    response = client.get("/students/all")
+    assert response.status_code == 200
+    assert response.json() == {
+        "students": {},
+        "marks": {},
+    }
+
+
+def test_update():
+    response = client.post("/students/1/marks/update", json={"mark": 4.5})
+    assert response.status_code == 200
+    assert response.json() == {"1": [4.5]}
+
+
+def test_update_not_found():
+    response = client.post("/students/100/marks/update", json={"mark": 4.5})
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Student not found"}
+
+
 @pytest.fixture(autouse=True)
 def delete_all_students():
     for student in client.get("/students/").json():
