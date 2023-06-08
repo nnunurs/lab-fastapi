@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import CreateStudent from "./CreateStudent";
 import StudentRow from "./StudentRow";
-import { getStudents } from "./ApiCalls";
+import { getStudents } from "./apiCalls";
 
 import {
   Table,
@@ -48,7 +48,7 @@ export default function Students() {
               <Th>First name</Th>
               <Th>Last name</Th>
               <Th>Marks</Th>
-              <Th>Edit</Th>
+              <Th>Average</Th>
               <Th>
                 <ButtonGroup display="flex" justifyContent="flex-end">
                   <CreateStudent update={updateData} />

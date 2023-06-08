@@ -2,20 +2,17 @@
 import {
   Editable,
   EditablePreview,
-  ButtonGroup,
-  IconButton,
   EditableInput,
   Th,
   Tr,
   Td,
-  Badge,
   useToast,
 } from "@chakra-ui/react";
-import { CheckIcon, CloseIcon, EditIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 
 import StudentActions from "./StudentActions";
-import { updateStudent } from "./ApiCalls";
+import Marks from "./Marks";
+import { updateStudent } from "./apiCalls";
 
 // eslint-disable-next-line react/prop-types
 export default function StudentRow({ studentObj, allMarks, id, update }) {
@@ -24,6 +21,18 @@ export default function StudentRow({ studentObj, allMarks, id, update }) {
   const [prevStudent, setPrevStudent] = useState(studentObj);
 
   const toast = useToast();
+
+  const acceptEdit = () => {
+    console.log(student);
+    setPrevStudent(student);
+    setIsEditing(false);
+    updateStudent(id, student, update, toast);
+  };
+
+  const cancelEdit = () => {
+    setIsEditing(false);
+    setStudent(prevStudent);
+  };
 
   return (
     <Tr>
@@ -58,47 +67,23 @@ export default function StudentRow({ studentObj, allMarks, id, update }) {
           student.last_name
         )}
       </Td>
-      <Td display="flex" justifyContent="space-evenly" alignItems="center">
-        {id in allMarks
-          ? allMarks[id].map((mark, index) => (
-              <Badge key={index} m={2}>
-                {mark}
-              </Badge>
-            ))
-          : "no marks"}
+      <Td display="flex" justifyContent="flex-start" alignItems="center">
+        <Marks id={id} allMarks={allMarks} update={update} />
       </Td>
       <Td>
-        {isEditing ? (
-          <ButtonGroup size="sm" isAttached variant="outline">
-            <IconButton
-              onClick={() => {
-                console.log(student);
-                setPrevStudent(student);
-                setIsEditing(false);
-                updateStudent(id, student, update, toast);
-              }}
-              aria-label="save edit"
-              icon={<CheckIcon />}
-            />
-            <IconButton
-              onClick={() => {
-                setIsEditing(false);
-                setStudent(prevStudent);
-              }}
-              aria-label="cancel edit"
-              icon={<CloseIcon />}
-            />
-          </ButtonGroup>
-        ) : (
-          <IconButton
-            onClick={() => setIsEditing(true)}
-            aria-label="edit entry"
-            icon={<EditIcon />}
-          />
-        )}
+        {parseFloat(
+          allMarks[id].reduce((p, a) => p + a, 0) / allMarks[id].length
+        ).toFixed(2)}
       </Td>
       <Td>
-        <StudentActions id={id} update={update} />
+        <StudentActions
+          id={id}
+          update={update}
+          acceptEdit={acceptEdit}
+          cancelEdit={cancelEdit}
+          isEditMode={isEditing}
+          toggleEditMode={() => setIsEditing(!isEditing)}
+        />
       </Td>
     </Tr>
   );

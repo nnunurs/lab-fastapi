@@ -1,59 +1,53 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react";
-import {
-  Input,
-  Button,
-  ButtonGroup,
-  IconButton,
-  useToast,
-} from "@chakra-ui/react";
-import { CloseIcon, DeleteIcon } from "@chakra-ui/icons";
+import { Button, ButtonGroup, IconButton, useToast } from "@chakra-ui/react";
+import { CloseIcon, DeleteIcon, CheckIcon } from "@chakra-ui/icons";
 
-import { deleteStudent, addMark } from "./ApiCalls";
+import { deleteStudent } from "./apiCalls";
 
-export default function StudentActions({ id, update }) {
-  const [mark, setMark] = useState(0.0);
-  const [isAdding, setIsAdding] = useState(false);
-
+export default function StudentActions({
+  id,
+  update,
+  acceptEdit,
+  cancelEdit,
+  isEditMode,
+  toggleEditMode,
+}) {
   const toast = useToast();
 
-  return isAdding ? (
-    <div>
-      <Input
-        placeholder=""
-        onChange={(e) => setMark(parseFloat(e.target.value))}
-        type="number"
-        width="auto"
-      />
-      <ButtonGroup size="sm" isAttached variant="outline">
-        <Button
-          onClick={() => {
-            addMark(id, mark, update, toast);
-            setIsAdding(false);
-          }}
-        >
-          Add
-        </Button>
-        <Button onClick={() => setIsAdding(false)}>
-          <CloseIcon />
-        </Button>
-      </ButtonGroup>
-    </div>
-  ) : (
-    <ButtonGroup display="flex" justifyContent="flex-end">
-      <Button
-        onClick={() => setIsAdding(true)}
-        colorScheme="teal"
-        variant="outline"
-      >
-        Add mark
-      </Button>
-      <IconButton
-        onClick={() => deleteStudent(id, update, toast)}
-        aria-label="delete entry"
-        icon={<DeleteIcon />}
-        colorScheme="red"
-      />
+  return (
+    <ButtonGroup display="flex" justifyContent="flex-end" isAttached>
+      {isEditMode ? (
+        <ButtonGroup size="sm" isAttached variant="outline">
+          <IconButton
+            onClick={() => {
+              acceptEdit();
+              toggleEditMode();
+            }}
+            aria-label="save edit"
+            icon={<CheckIcon />}
+          />
+          <IconButton
+            onClick={() => {
+              cancelEdit();
+              toggleEditMode();
+            }}
+            aria-label="cancel edit"
+            icon={<CloseIcon />}
+          />
+        </ButtonGroup>
+      ) : (
+        <ButtonGroup isAttached variant="outline">
+          <Button onClick={() => toggleEditMode()} colorScheme="teal">
+            Edit name
+          </Button>
+          <IconButton
+            onClick={() => deleteStudent(id, update, toast)}
+            aria-label="delete entry"
+            icon={<DeleteIcon />}
+            colorScheme="red"
+          />
+        </ButtonGroup>
+      )}
     </ButtonGroup>
   );
 }

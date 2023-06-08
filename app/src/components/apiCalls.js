@@ -149,4 +149,45 @@ const addMark = (id, mark, update, toast) => {
     .finally(() => update());
 };
 
-export { getStudents, createStudent, updateStudent, deleteStudent, addMark };
+const updateMarks = (id, newMarks, update, toast) => {
+  fetch(API_BASE_URL + `${id}/marks/update`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ marks: newMarks }),
+  })
+    .then((res) => {
+      if (!res.ok) {
+        toast({
+          title: "Error updating marks",
+          description: res.statusText,
+          status: "error",
+        });
+        throw new Error(res.statusText);
+      } else res.json();
+    })
+    .then((data) => {
+      console.log(data);
+      toast({
+        title: "Mark updated",
+        description: "Marks were updated successfully",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    })
+    .catch((error) => {
+      console.log(error);
+    })
+    .finally(() => update());
+};
+
+export {
+  getStudents,
+  createStudent,
+  updateStudent,
+  deleteStudent,
+  addMark,
+  updateMarks,
+};

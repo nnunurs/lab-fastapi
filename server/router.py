@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 import json
 
-from server.schema import Student, Mark
+from server.schema import Student, Mark, NewMarks
 from server.storage import *
 
 router = APIRouter()
@@ -92,6 +92,18 @@ async def add_mark(id_: int, mark: Mark):
     else:
         marks[id_].append(mark)
 
+    return {id_: marks[id_]}
+
+
+@router.post("/{id_}/marks/update")
+async def update_marks(id_: int, new_marks: NewMarks):
+    if id_ not in students:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    if id_ not in get_marks_storage():
+        raise HTTPException(status_code=404, detail="Student has no marks")
+
+    marks[id_] = new_marks.marks
     return {id_: marks[id_]}
 
 

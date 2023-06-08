@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useState } from "react";
 import {
   Button,
@@ -10,15 +11,21 @@ import {
   ModalFooter,
   IconButton,
   useToast,
+  FormControl,
+  FormLabel,
+  FormErrorMessage,
 } from "@chakra-ui/react";
 import { CloseIcon } from "@chakra-ui/icons";
-import { createStudent } from "./ApiCalls";
+import { createStudent } from "./apiCalls";
 
 export default function CreateStudent({ update }) {
   const [student, setStudent] = useState({ first_name: "", last_name: "" });
   const [isOpen, setIsOpen] = useState(false);
 
   const toast = useToast();
+
+  const isFNameError = student.first_name === "";
+  const isLNameError = student.last_name === "";
 
   return (
     <div>
@@ -30,21 +37,37 @@ export default function CreateStudent({ update }) {
         <ModalContent>
           <ModalHeader>Create new student</ModalHeader>
           <ModalBody>
-            <Input
-              value={student.first_name}
-              onChange={(e) =>
-                setStudent({ ...student, first_name: e.target.value })
-              }
-              placeholder="First name"
-              mb={5}
-            />
-            <Input
-              value={student.last_name}
-              onChange={(e) =>
-                setStudent({ ...student, last_name: e.target.value })
-              }
-              placeholder="Last name"
-            />
+            <FormControl isRequired isInvalid={isFNameError}>
+              <FormLabel>First name</FormLabel>
+              <Input
+                value={student.first_name}
+                onChange={(e) =>
+                  setStudent({ ...student, first_name: e.target.value })
+                }
+                placeholder="First name"
+                mb={5}
+              />
+              {!isFNameError ? (
+                ""
+              ) : (
+                <FormErrorMessage>First name is required</FormErrorMessage>
+              )}
+            </FormControl>
+            <FormControl isRequired isInvalid={isLNameError}>
+              <FormLabel>Last name</FormLabel>
+              <Input
+                value={student.last_name}
+                onChange={(e) =>
+                  setStudent({ ...student, last_name: e.target.value })
+                }
+                placeholder="Last name"
+              />
+              {!isLNameError ? (
+                ""
+              ) : (
+                <FormErrorMessage>Last name is required</FormErrorMessage>
+              )}
+            </FormControl>
           </ModalBody>
           <ModalFooter>
             <IconButton
@@ -56,6 +79,7 @@ export default function CreateStudent({ update }) {
               mr={5}
             ></IconButton>
             <Button
+              isDisabled={isFNameError || isLNameError}
               onClick={() => {
                 createStudent(student, update, toast);
                 setStudent({ first_name: "", last_name: "" });
