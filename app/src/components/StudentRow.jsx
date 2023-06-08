@@ -71,9 +71,11 @@ export default function StudentRow({ studentObj, allMarks, id, update }) {
         <Marks id={id} allMarks={allMarks} update={update} />
       </Td>
       <Td>
-        {parseFloat(
-          allMarks[id].reduce((p, a) => p + a, 0) / allMarks[id].length
-        ).toFixed(2)}
+        {id in allMarks
+          ? parseFloat(
+              allMarks[id].reduce((p, a) => p + a, 0) / allMarks[id].length
+            ).toFixed(2)
+          : 0}
       </Td>
       <Td>
         <StudentActions

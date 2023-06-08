@@ -15,4 +15,4 @@ uvicorn main:app --reload
 cd app
 npm run dev
 ```
-5. Open http://localhost:3000/ in your browser
+5. Open the app in your browser
