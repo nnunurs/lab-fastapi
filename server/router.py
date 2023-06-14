@@ -81,7 +81,7 @@ async def delete_student(id_: int):
     return {"message": "Student deleted"}
 
 
-@router.post("/{id_}/marks/{mark: float}")
+@router.post("/{id_}/marks/{mark:float}")
 async def add_mark(id_: int, mark: Mark):
     print(students)
     if id_ not in students:
